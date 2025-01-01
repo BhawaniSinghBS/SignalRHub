@@ -1,0 +1,212 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<PageTitle>Index</PageTitle>
+
+<style>
+    .box {
+        height: 200px;
+        width: 100%;
+        border: 1px solid #000;
+        padding: 10px;
+    }
+
+    .output-text > * {
+        word-wrap: break-word;
+        text-wrap: wrap;
+        max-width: 100%;
+        word-break: break-all;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row mb-1">
+        <div class="col-12">
+            <div class="output-text">
+                <h5 style="margin-right: 5px;">Subscribed Tags:</h5>
+                <h6 style="margin-right: 10px;">
+                    @(string.Join(',', SignalRClient.SignalRClient.TagsSubscribed))
+                    ,
+                </h6>
+
+                <div>
+                    @foreach (var keyValuePair in ProcessedData)
+                    {
+                        <div style="display: flex; flex-direction: row;">
+                            <h5 style="margin-right: 5px;">Tag Name:</h5>
+                            <span style="margin-right: 10px;">@(keyValuePair.Key)</span>
+                            <h5 style="margin-right: 5px;">Value Received:</h5>
+                            <span>
+                                @keyValuePair.Value;
+                            </span>
+                        </div>
+                    }
+                    <div class="row" >
+                        @if (DataGridData != null && DataGridData?.Keys?.Count() > 0)
+                        {
+                            @foreach (var item in DataGridData)
+                            {
+                                <div class="col-md-3 " style="width:120px;">
+
+                                    <table border="1">
+                                        <thead >
+                                            <tr >
+                                                .
+                                                <th><span style="width:110px;"> @item.Key</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (item.Value?.Keys?.Count() > 0 && item.Value != null)
+                                            {
+                                                @foreach (var thisItem in item.Value)
+                                                {
+                                                    <tr>
+                                                        <td style="width:25%;">@thisItem.Key</td>
+                                                        <td style="width:75%;background-color:@thisItem.Value; color:white;">
+                                                            @*@thisItem.Value*@
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gy-3">
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-item stack-item">
+                <h4>Select Tag To Subscribe:</h4>
+                <select multiple @onchange="@((ChangeEventArgs args) =>
+                {
+                    SelectedIdToSubscribeOrUnSubcribe = args.Value != null ? ((IEnumerable<string>)args.Value).Select(int.Parse).ToList() : SelectedIdToSubscribeOrUnSubcribe;
+                })">
+                    @foreach (var option in Ids)
+                    {
+                        <option @key="@option" selected="@(SelectedIdToSubscribeOrUnSubcribe.Contains(option))"
+                                value="@option">@option</option>
+                    }
+                </select>
+
+                <br />
+                <button @onclick="SubscribeSelectedTags">Subscribe</button>
+                <button @onclick="UnSubscribeSelectedTags">Un-Subscribe</button>
+                <!-- if you want to show selected tags in text -->
+                @foreach (int selectedtagtosubscribe in SelectedIdToSubscribeOrUnSubcribe)
+                {
+                    <h4>@selectedtagtosubscribe.ToString()</h4>
+                }
+            </div>
+            <div class="card card-item stack-item">
+                <textarea @bind="@IdsToGetDataFromApiCall" />
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-item stack-item">
+                <h4>Select Receivers:</h4>
+                <select multiple @onchange=@(args=> { SelectedTagsToSendMessage = args.Value != null ? ((IEnumerable
+                        <string>
+                        )args.Value).ToList():SelectedTagsToSendMessage; } )>
+                    @foreach (string option in TagsToSendMessage)
+                    {
+                        <option @key=@option selected=@(SelectedTagsToSendMessage.Contains(option)) value=@option>
+                            @option
+                        </option>
+                    }
+                </select>
+
+
+                <br />
+                <br />
+                <p>Selected clients which will receive the message </p>
+
+                <p>(they should have subscribed to this message):</p>
+                @foreach (var selectedTagToSendMessage in SelectedTagsToSendMessage)
+                {
+                    <h4 style="color: #00ff21; background-color: white;">@selectedTagToSendMessage</h4>
+
+                }
+                <br />
+            </div>
+            <div class="card card-item stack-item">
+                <button @onclick="GetDataFromMultiSelectDropDown">
+                    Get Seclected Items
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-item stack-item">
+                <h4>Type the message that you want to send to the selected receivers:</h4>
+                <textarea @bind="@MessageToSend" />
+                <button @onclick="SendMessage">Send</button>
+                <button @onclick="MakeTCPCall">Send Safety DataMessage</button>
+                <textarea @bind="@Id" />
+                <button @onclick="AddToIdList">Add To IdList</button>
+            </div>
+            <div class="card card-item stack-item">
+                <button @onclick="GetDataForSelectedIdsFromMultiselectMenuFromOtherEnvironment">
+                    Get Seclected id data
+                </button>
+            </div>
+            <div class="card card-item stack-item">
+                <button @onclick="GetDataForSelectedIdsFromMultiselectMenuFromAnotherEnvironment">
+                    Get Seclected Items map.xml from dev
+                </button>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <h3>@SendMessageReturnStatus</h3>
+        </div>
+        
+        <div class="col-12" style="background-color: #f0f0f0; ">
+            <textarea @bind="@URLorIP" />
+            <button @onclick="ConnectOnClick">
+                connect to on this application url is the address bar
+            </button>
+        </div>
+
+        <button @onclick="RemovePortFromConnectedURL">
+            Remove Port From Connected URL
+        </button>
+        <button @onclick="AddPortIntoConnectedURL">
+            Add Port Into Connected URL
+        </button>
+    </div>
+</div>
+
+
+
+@*
+<div class="form-group">
+    <label>
+        User:
+        <input @bind="userInput" />
+    </label>
+</div>
+<div class="form-group">
+    <label>
+        Message:
+        <input @bind="messageInput" size="50" />
+    </label>
+</div>
+<button @onclick="Send" disabled="@(!IsConnected)">Send</button>
+@*
+<hr>
+
+<ul id="messagesList">
+    @foreach (var message in messages)
+    {
+    <li>@message</li>
+    }
+</ul>*@

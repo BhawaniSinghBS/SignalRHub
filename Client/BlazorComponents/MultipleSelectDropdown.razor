@@ -1,0 +1,28 @@
+﻿
+<select multiple="true" @bind="SelectedValues">
+    @foreach (var item in Items)
+    {
+        <option value="@item">@item</option>
+    }
+</select>
+
+@code {
+    [Parameter] public List<string> Items { get; set; } = new List<string>();
+
+    [Parameter] public List<string> SelectedValues { get; set; } = new List<string>();
+    private string selectedValue;
+    private string SelectedValue
+    {
+        get => selectedValue;
+
+        set
+        {
+            selectedValue = value;
+            if (!string.IsNullOrEmpty(value))
+            {
+                SelectedValues.Add(value);
+            }
+
+        }
+    }
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "Server\\GetSpatProcessAndReciveTheImage.Server.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "SignalrConsoleClient\\SignalrConsoleClient.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Modals\**" />
+    <Compile Remove="DataProcessing\**" />
+    <EmbeddedResource Remove="Modals\**" />
+    <EmbeddedResource Remove="DataProcessing\**" />
+    <None Remove="Modals\**" />
+    <None Remove="DataProcessing\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="WebSocketClient.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

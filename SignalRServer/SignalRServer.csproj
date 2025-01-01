@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DatabaseInterface\**" />
+    <EmbeddedResource Remove="DatabaseInterface\**" />
+    <None Remove="DatabaseInterface\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Middleware\ErrorHandlingMiddleware.cs" />
+    <Compile Remove="Secuirity\SignalRHubAuthorize.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.15" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CoreTCP.CoreUDP\CoreTCP.CoreUDP.csproj" />
+    <ProjectReference Include="..\PromethusClient\PromethusClient.csproj" />
+    <ProjectReference Include="..\RedisClient\RedisClient.csproj" />
+    <ProjectReference Include="..\SignalRClient\SignalRClient.csproj" />
+    <ProjectReference Include="..\SignalRHub.DAL\SihnalRHub.DAL.csproj" />
+  </ItemGroup>
+
+</Project>
